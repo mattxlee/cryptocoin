@@ -22,6 +22,8 @@ class Hash256 {
   const uint8_t *get_md() const { return md_; }
   size_t get_md_size() const { return SHA256_DIGEST_LENGTH; }
 
+  bool is_finished() const { return finished_; }
+
  private:
   uint8_t md_[SHA256_DIGEST_LENGTH];
   SHA256_CTX ctx_;
@@ -33,7 +35,7 @@ template <typename HashAlgo>
 class HashBuilder {
  public:
   HashBuilder &operator<<(const DataValue &data) {
-    if (!algo_.Calculate(data.data(), data.size())) {
+    if (algo_.is_finished() || !algo_.Calculate(data.data(), data.size())) {
       // TODO Failed!
     }
     return *this;
