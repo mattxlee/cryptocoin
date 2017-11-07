@@ -1,5 +1,7 @@
 #include "key.h"
 
+#include <cassert>
+
 #include "rnd_man.h"
 #include "rnd_openssl.h"
 #include "rnd_os.h"
@@ -14,6 +16,7 @@ const unsigned int SIGNATURE_SIZE = 72;
 Key::Key() {
   // Create secp256k1 context.
   ctx_ = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
+  assert(ctx_ != nullptr);
 
   // Randomize private key.
   do {
@@ -32,6 +35,7 @@ Key::Key(const std::vector<uint8_t> &priv_key_data)
     : priv_key_data_(priv_key_data) {
   // Create secp256k1 context.
   ctx_ = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
+  assert(ctx_ != nullptr);
   // Calculate public key from private key.
   CalculatePublicKey(true);
 }
@@ -44,55 +48,42 @@ Key::~Key() {
 }
 
 bool Key::VerifyKey() const {
+  assert(ctx_ != nullptr);
   return secp256k1_ec_seckey_verify(ctx_, priv_key_data_.data());
 }
 
 PubKey Key::CreatePubKey() const { return PubKey(pub_key_data_); }
 
-std::tuple<std::vector<uint8_t>, bool> Key::Sign(
-    const std::vector<uint8_t> &hash) const {
+std::vector<uint8_t> Key::Sign(const std::vector<uint8_t> &hash) const {
   // Make signature.
   secp256k1_ecdsa_signature sig;
-  int ret = secp256k1_ecdsa_sign(ctx_, &sig, hash.data(), priv_key_data_.data(),
-                                 secp256k1_nonce_function_rfc6979, nullptr);
-  if (ret != 1) {
-    // Failed to sign.
-    return std::make_tuple(std::vector<uint8_t>(), false);
-  }
+  assert(secp256k1_ecdsa_sign(ctx_, &sig, hash.data(), priv_key_data_.data(),
+                              secp256k1_nonce_function_rfc6979, nullptr) == 1);
 
   // Serialize signature.
   std::vector<uint8_t> sig_out(72);
   size_t sig_out_size = 72;
-  ret = secp256k1_ecdsa_signature_serialize_der(
-      ctx_, (unsigned char *)sig_out.data(), &sig_out_size, &sig);
-  if (ret != 1) {
-    // Failed to serialize.
-    return std::make_tuple(std::vector<uint8_t>(), false);
-  }
+  assert(secp256k1_ecdsa_signature_serialize_der(
+             ctx_, (unsigned char *)sig_out.data(), &sig_out_size, &sig) == 1);
 
   // Returns
   sig_out.resize(sig_out_size);
-  return std::make_tuple(sig_out, true);
+  return sig_out;
 }
 
-bool Key::CalculatePublicKey(bool compressed) {
+void Key::CalculatePublicKey(bool compressed) {
   // Calculate public key.
   secp256k1_pubkey pubkey;
-  int ret = secp256k1_ec_pubkey_create(ctx_, &pubkey, priv_key_data_.data());
-  if (ret != 1) {
-    return false;
-  }
+  assert(secp256k1_ec_pubkey_create(ctx_, &pubkey, priv_key_data_.data()) == 1);
 
   // Serialize public key.
   size_t out_size = PUBLIC_KEY_SIZE;
   pub_key_data_.resize(out_size);
-  secp256k1_ec_pubkey_serialize(
-      ctx_, pub_key_data_.data(), &out_size, &pubkey,
-      compressed ? SECP256K1_EC_COMPRESSED : SECP256K1_EC_UNCOMPRESSED);
+  assert(secp256k1_ec_pubkey_serialize(
+             ctx_, pub_key_data_.data(), &out_size, &pubkey,
+             compressed ? SECP256K1_EC_COMPRESSED
+                        : SECP256K1_EC_UNCOMPRESSED) == 1);
   pub_key_data_.resize(out_size);
-
-  // Succeed.
-  return true;
 }
 
 }  // namespace ecdsa

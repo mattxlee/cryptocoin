@@ -62,11 +62,10 @@ class Key {
    *
    * @return Signature return.
    */
-  std::tuple<std::vector<uint8_t>, bool> Sign(
-      const std::vector<uint8_t> &hash) const;
+  std::vector<uint8_t> Sign(const std::vector<uint8_t> &hash) const;
 
  private:
-  bool CalculatePublicKey(bool compressed);
+  void CalculatePublicKey(bool compressed);
 
  private:
   secp256k1_context *ctx_ = nullptr;
