@@ -3,11 +3,7 @@
 namespace coin {
 namespace mt {
 
-Node::Node(const DataValue &data) {
-  Hash256Builder hash_builder;
-  hash_builder << data;
-  hash_ = hash_builder.FinalValue();
-}
+Node::Node(const DataValue &hash) : hash_(hash) {}
 
 Node::Node(NodePtr left, NodePtr right, NodePtr parent)
     : left_(left), right_(right), parent_(parent) {
@@ -41,14 +37,6 @@ NodePtr MakeMerkleTree(const std::vector<NodePtr> &vec_node) {
   }
 
   return MakeMerkleTree(next_vec_node);
-}
-
-NodePtr MakeMerkleTree(const std::vector<DataValue> &vec_data) {
-  std::vector<NodePtr> vec_node;
-  for (const DataValue &data : vec_data) {
-    vec_node.emplace_back(std::make_shared<Node>(data));
-  }
-  return MakeMerkleTree(vec_node);
 }
 
 }  // namespace mt

@@ -19,7 +19,7 @@ class Node {
    *
    * @param data Data to hash.
    */
-  explicit Node(const DataValue &data);
+  explicit Node(const DataValue &hash);
 
   /**
    * @brief Constructor for Node.
@@ -48,13 +48,11 @@ class Node {
 
 NodePtr MakeMerkleTree(const std::vector<NodePtr> &vec_node);
 
-NodePtr MakeMerkleTree(const std::vector<DataValue> &vec_data);
-
 template <typename Container>
 NodePtr MakeMerkleTree(const Container &container) {
   std::vector<NodePtr> vec_node;
   for (auto &val : container) {
-    vec_node.emplace_back(std::make_shared<Node>(val.data()));
+    vec_node.emplace_back(std::make_shared<Node>(val.CalcHash()));
   }
   return MakeMerkleTree(vec_node);
 }
