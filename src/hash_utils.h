@@ -65,6 +65,9 @@ DataValue ToDataValue(const short &value);
 /// Convert 64bits integer value to DataValue.
 DataValue ToDataValue(const uint64_t &value);
 
+/// Convert string value to DataValue.
+DataValue ToDataValue(const std::string &value);
+
 }  // namespace coin
 
 #endif

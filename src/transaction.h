@@ -39,6 +39,12 @@ struct TxIn {
 struct TxOut {
   std::string address;  // To address.
   uint64_t value;       // Value.
+
+  DataValue CalcHash() const {
+    Hash256Builder hash_builder;
+    hash_builder << ToDataValue(address) << ToDataValue(value);
+    return hash_builder.FinalValue();
+  }
 };
 
 namespace tx {

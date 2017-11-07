@@ -59,4 +59,10 @@ DataValue ToDataValue(const uint64_t &value) {
   return data;
 }
 
+DataValue ToDataValue(const std::string &value) {
+  DataValue data(value.size());
+  memcpy(data.data(), value.c_str(), value.size());
+  return data;
+}
+
 }  // namespace coin
