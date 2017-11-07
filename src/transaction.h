@@ -6,6 +6,7 @@
 
 #include "hash_utils.h"
 #include "key.h"
+#include "merkle_tree.h"
 
 namespace coin {
 
@@ -37,22 +38,35 @@ struct TxIn {
   int out_index;        // txout index.
   DataValue signature;  // Signature of hash(tx_hash + out_index).
 
-  DataValue CalcHashData() const {
+  DataValue CalcHash() const {
     Hash256Builder hash_builder;
     hash_builder << tx_hash << ToDataValue(out_index) << signature;
     return hash_builder.FinalValue();
+  }
+
+  template <typename Stream>
+  void Serialize(Stream &s) {
+    s << tx_hash;
+    s << ToDataValue(out_index);
+    s << signature;
   }
 };
 
 /// Transaction outcoming tx.
 struct TxOut {
   std::string address;  // To address.
-  uint64_t value;       // Value.
+  uint64_t amount;      // Transfer amount.
 
   DataValue CalcHash() const {
     Hash256Builder hash_builder;
-    hash_builder << ToDataValue(address) << ToDataValue(value);
+    hash_builder << ToDataValue(address) << ToDataValue(amount);
     return hash_builder.FinalValue();
+  }
+
+  template <typename Stream>
+  void Serialize(Stream &s) {
+    s << ToDataValue(address);
+    s << ToDataValue(amount);
   }
 };
 
@@ -82,14 +96,28 @@ class Transaction : public TransactionBase {
   void set_pub_key(const DataValue &pub_key);
 
   /// Add TxIn record.
-  void add_tx_in(TxIn in);
+  void add_tx_in(const TxIn &in);
 
   /// Add TxOut record.
-  void add_tx_out(TxOut out);
+  void add_tx_out(const TxOut &out);
 
   /// Serialize to stream.
   template <typename Stream>
   size_t Serialize(Stream &s) const {
+    // Header values.
+    s << ToDataValue(get_type());                    // type
+    s << ToDataValue(static_cast<int>(get_time()));  // timestamp
+    s << pub_key_;                                   // public key
+
+    // Tx in/out merkle tree hash value.
+    mt::NodePtr txin_root = mt::MakeMerkleTree(vec_txin);    // TxIn
+    mt::NodePtr txout_root = mt::MakeMerkleTree(vec_txout);  // TxOut
+    Hash256Builder hash_builder;
+    hash_builder << txin_root->get_hash() << txout_root->get_hash();
+    s << hash_builder.FinalValue();
+
+    // TxIn list.
+    // TxOut list.
   }
 
   /// Unserialize from stream.
