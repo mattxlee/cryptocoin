@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 
+#include <cassert>
 #include <sstream>
 #include <string>
 
@@ -11,16 +12,15 @@ Hash256::Hash256() { SHA256_Init(&ctx_); }
 
 Hash256::~Hash256() { Final(); }
 
-bool Hash256::Calculate(const uint8_t *p, size_t size) {
-  int ret = SHA256_Update(&ctx_, p, size);
-  return ret == 1;
+void Hash256::Calculate(const uint8_t *p, size_t size) {
+  assert(p != nullptr && size > 0);
+  assert(SHA256_Update(&ctx_, p, size) == 1);
 }
 
-bool Hash256::Final() {
-  if (finished_) return false;
-  int ret = SHA256_Final(md_, &ctx_);
+void Hash256::Final() {
+  assert(!finished_);
+  assert(SHA256_Final(md_, &ctx_) == 1);
   finished_ = true;
-  return ret == 1;
 }
 
 std::string HashToStr(const DataValue &hash, int num_of_digits) {
