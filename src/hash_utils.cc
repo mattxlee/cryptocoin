@@ -1,5 +1,8 @@
 #include "hash_utils.h"
 
+#include <sstream>
+#include <string>
+
 namespace coin {
 
 Hash256::Hash256() { SHA256_Init(&ctx_); }
@@ -16,6 +19,21 @@ bool Hash256::Final() {
   int ret = SHA256_Final(md_, &ctx_);
   finished_ = true;
   return ret == 1;
+}
+
+std::string HashToStr(const DataValue &hash, int num_of_digits) {
+  std::stringstream ss;
+  char digits[3];
+  int n = 0;
+  auto it = std::begin(hash);
+  while (n < num_of_digits && it < std::end(hash)) {
+    sprintf(digits, "%02x", *it);
+    ss << digits;
+    // next
+    ++n;
+    ++it;
+  }
+  return ss.str();
 }
 
 }  // namespace coin

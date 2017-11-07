@@ -56,6 +56,8 @@ class HashBuilder {
 
 typedef HashBuilder<Hash256> Hash256Builder;
 
+std::string HashToStr(const DataValue &hash, int num_of_digits = 4);
+
 }  // namespace coin
 
 #endif
