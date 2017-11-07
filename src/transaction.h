@@ -27,6 +27,12 @@ struct TxIn {
   DataValue tx_hash;    // From transaction hash value.
   int out_index;        // txout index.
   DataValue signature;  // Signature of hash(tx_hash + out_index).
+
+  DataValue CalcHashData() const {
+    Hash256Builder hash_builder;
+    hash_builder << tx_hash << ToDataValue(out_index) << signature;
+    return hash_builder.FinalValue();
+  }
 };
 
 /// Transaction outcoming tx.
