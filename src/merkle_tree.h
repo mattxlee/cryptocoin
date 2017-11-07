@@ -50,6 +50,15 @@ NodePtr MakeMerkleTree(const std::vector<NodePtr> &vec_node);
 
 NodePtr MakeMerkleTree(const std::vector<DataValue> &vec_data);
 
+template <typename Container>
+NodePtr MakeMerkleTree(const Container &container) {
+  std::vector<NodePtr> vec_node;
+  for (auto &val : container) {
+    vec_node.emplace_back(std::make_shared<Node>(val.data()));
+  }
+  return MakeMerkleTree(vec_node);
+}
+
 }  // namespace mt
 }  // namespace coin
 
