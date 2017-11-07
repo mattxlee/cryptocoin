@@ -12,14 +12,23 @@ namespace coin {
 /// Basic transaction.
 class TransactionBase {
  public:
+  /// Create new Transaction.
+  TransactionBase();
+
   /// New transaction type can inherite from.
   virtual ~TransactionBase() {}
+
+  /// Get timestamp.
+  time_t get_time() const { return time_; }
 
   /// Transaction type value, starts from 0.
   virtual int get_type() const = 0;
 
   /// Calculate hash value.
   virtual DataValue CalcHash() const = 0;
+
+ private:
+  time_t time_ = 0;
 };
 
 /// Transaction incoming tx.
