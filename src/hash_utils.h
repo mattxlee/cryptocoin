@@ -65,6 +65,8 @@ DataValue ToDataValue(const int &value);
 /// Convert value to DataValue.
 DataValue ToDataValue(const short &value);
 
+DataValue ToDataValue(const uint64_t &value);
+
 }  // namespace coin
 
 #endif

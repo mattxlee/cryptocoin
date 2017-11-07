@@ -52,4 +52,11 @@ DataValue ToDataValue(const short &value) {
   return data;
 }
 
+DataValue ToDataValue(const uint64_t &value) {
+  uint64_t value_n = htonll(value);
+  DataValue data(sizeof(value_n));
+  memcpy(data.data(), &value_n, sizeof(value_n));
+  return data;
+}
+
 }  // namespace coin
