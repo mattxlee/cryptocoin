@@ -56,7 +56,14 @@ class HashBuilder {
 
 typedef HashBuilder<Hash256> Hash256Builder;
 
+/// Convert DataValue to string.
 std::string HashToStr(const DataValue &hash, int num_of_digits = 4);
+
+/// Convert value to DataValue.
+DataValue ToDataValue(const int &value);
+
+/// Convert value to DataValue.
+DataValue ToDataValue(const short &value);
 
 }  // namespace coin
 

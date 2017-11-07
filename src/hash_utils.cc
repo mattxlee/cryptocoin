@@ -1,5 +1,7 @@
 #include "hash_utils.h"
 
+#include <arpa/inet.h>
+
 #include <sstream>
 #include <string>
 
@@ -34,6 +36,20 @@ std::string HashToStr(const DataValue &hash, int num_of_digits) {
     ++it;
   }
   return ss.str();
+}
+
+DataValue ToDataValue(const int &value) {
+  int value_n = htonl(value);
+  DataValue data(sizeof(value_n));
+  memcpy(data.data(), &value_n, sizeof(value_n));
+  return data;
+}
+
+DataValue ToDataValue(const short &value) {
+  short value_n = htons(value);
+  DataValue data(sizeof(value_n));
+  memcpy(data.data(), &value_n, sizeof(value_n));
+  return data;
 }
 
 }  // namespace coin
