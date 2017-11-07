@@ -117,7 +117,16 @@ class Transaction : public TransactionBase {
     s << hash_builder.FinalValue();
 
     // TxIn list.
+    s << ToDataValue(static_cast<int>(vec_txin.size()));
+    for (const TxIn &in : vec_txin) {
+      in.Serialize(s);
+    }
+
     // TxOut list.
+    s << ToDataValue(static_cast<int>(vec_txout.size()));
+    for (const TxOut &out : vec_txout) {
+      out.Serialize(s);
+    }
   }
 
   /// Unserialize from stream.
