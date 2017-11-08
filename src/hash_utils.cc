@@ -41,31 +41,4 @@ std::string HashToStr(const data::Buffer &hash, int num_of_digits) {
   return ss.str();
 }
 
-// DataValue ToDataValue(const int &value) {
-//   int value_n = htonl(value);
-//   DataValue data(sizeof(value_n));
-//   memcpy(data.data(), &value_n, sizeof(value_n));
-//   return data;
-// }
-//
-// DataValue ToDataValue(const short &value) {
-//   short value_n = htons(value);
-//   DataValue data(sizeof(value_n));
-//   memcpy(data.data(), &value_n, sizeof(value_n));
-//   return data;
-// }
-//
-// DataValue ToDataValue(const uint64_t &value) {
-//   uint64_t value_n = htonll(value);
-//   DataValue data(sizeof(value_n));
-//   memcpy(data.data(), &value_n, sizeof(value_n));
-//   return data;
-// }
-//
-// DataValue ToDataValue(const std::string &value) {
-//   DataValue data(value.size());
-//   memcpy(data.data(), value.c_str(), value.size());
-//   return data;
-// }
-
 }  // namespace coin
