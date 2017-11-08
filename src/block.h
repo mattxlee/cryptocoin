@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "hash_utils.h"
+#include "data_value.h"
 
 namespace coin {
 
@@ -17,13 +17,13 @@ class Block {
 
  private:
   // Block base info.
-  DataValue block_hash_;
+  data::Buffer block_hash_;
   int version_ = 0x01000000;
   time_t timestamp_;
   // Below values contain in the calculation of block hash.
-  DataValue prev_hash_;
-  DataValue merkl_root_hash_;
-  DataValue nonce_;
+  data::Buffer prev_hash_;
+  data::Buffer merkl_root_hash_;
+  data::Buffer nonce_;
 };
 
 }  // namespace coin
