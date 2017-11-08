@@ -1,16 +1,19 @@
-cmake_minimum_required(VERSION 2.7)
+cmake_minimum_required(VERSION 3.0)
 
-project(blockchain)
+project(cryptocoin)
 
 find_package(OpenSSL REQUIRED)
 
+find_library(SECP256K1 secp256k1)
+
 set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 file(GLOB src "./src/*.cc")
 
-add_library(blockchain ${src})
+add_library(cryptocoin SHARED ${src})
 
-target_link_libraries(blockchain ${OPENSSL_LIBRARIES})
+target_link_libraries(cryptocoin ${OPENSSL_LIBRARIES} ${SECP256K1})
 
