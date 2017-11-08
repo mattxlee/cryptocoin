@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "data_value.h"
 #include "hash_utils.h"
 #include "key.h"
 #include "merkle_tree.h"
@@ -26,7 +27,7 @@ class TransactionBase {
   virtual int get_type() const = 0;
 
   /// Calculate hash value.
-  virtual DataValue CalcHash() const = 0;
+  virtual data::Buffer CalcHash() const = 0;
 
  private:
   time_t time_ = 0;
@@ -34,20 +35,20 @@ class TransactionBase {
 
 /// Transaction incoming tx.
 struct TxIn {
-  DataValue tx_hash;    // From transaction hash value.
-  int out_index;        // txout index.
-  DataValue signature;  // Signature of hash(tx_hash + out_index).
+  data::Buffer tx_hash;    // From transaction hash value.
+  int out_index;           // txout index.
+  data::Buffer signature;  // Signature of hash(tx_hash + out_index).
 
-  DataValue CalcHash() const {
+  data::Buffer CalcHash() const {
     Hash256Builder hash_builder;
-    hash_builder << tx_hash << ToDataValue(out_index) << signature;
+    hash_builder << tx_hash << data::MakeValue(out_index) << signature;
     return hash_builder.FinalValue();
   }
 
   template <typename Stream>
   void Serialize(Stream &s) {
     s << tx_hash;
-    s << ToDataValue(out_index);
+    s << data::MakeValue(out_index);
     s << signature;
   }
 };
@@ -57,16 +58,16 @@ struct TxOut {
   std::string address;  // To address.
   uint64_t amount;      // Transfer amount.
 
-  DataValue CalcHash() const {
+  data::Buffer CalcHash() const {
     Hash256Builder hash_builder;
-    hash_builder << ToDataValue(address) << ToDataValue(amount);
+    hash_builder << data::MakeValue(address) << data::MakeValue(amount);
     return hash_builder.FinalValue();
   }
 
   template <typename Stream>
   void Serialize(Stream &s) {
-    s << ToDataValue(address);
-    s << ToDataValue(amount);
+    s << data::MakeValue(address);
+    s << data::MakeValue(amount);
   }
 };
 
@@ -81,8 +82,8 @@ namespace tx {
  *
  * @return Signature data.
  */
-DataValue MakeTxSignature(const ecdsa::Key &key, const DataValue &tx_hash,
-                          int out_index);
+data::Buffer MakeTxSignature(const ecdsa::Key &key, const data::Buffer &tx_hash,
+                             int out_index);
 
 }  // namespace tx
 
@@ -93,7 +94,7 @@ class Transaction : public TransactionBase {
   virtual int get_type() const override { return 0; }
 
   /// Set public key, verification of TxIn.
-  void set_pub_key(const DataValue &pub_key);
+  void set_pub_key(const data::Buffer &pub_key);
 
   /// Add TxIn record.
   void add_tx_in(const TxIn &in);
@@ -105,8 +106,8 @@ class Transaction : public TransactionBase {
   template <typename Stream>
   size_t Serialize(Stream &s) const {
     // Header values.
-    s << ToDataValue(get_type());                    // type
-    s << ToDataValue(static_cast<int>(get_time()));  // timestamp
+    s << data::MakeValue(get_type());                    // type
+    s << data::MakeValue(static_cast<int>(get_time()));  // timestamp
     s << pub_key_;                                   // public key
 
     // Tx in/out merkle tree hash value.
@@ -117,13 +118,13 @@ class Transaction : public TransactionBase {
     s << hash_builder.FinalValue();
 
     // TxIn list.
-    s << ToDataValue(static_cast<int>(vec_txin.size()));
+    s << data::MakeValue(static_cast<int>(vec_txin.size()));
     for (const TxIn &in : vec_txin) {
       in.Serialize(s);
     }
 
     // TxOut list.
-    s << ToDataValue(static_cast<int>(vec_txout.size()));
+    s << data::MakeValue(static_cast<int>(vec_txout.size()));
     for (const TxOut &out : vec_txout) {
       out.Serialize(s);
     }
@@ -134,10 +135,10 @@ class Transaction : public TransactionBase {
   size_t Unserialize(const Stream &s) {}
 
   /// Calculate hash value.
-  virtual DataValue CalcHash() const override;
+  virtual data::Buffer CalcHash() const override;
 
  private:
-  DataValue pub_key_;
+  data::Buffer pub_key_;
   std::vector<TxIn> vec_txin;
   std::vector<TxOut> vec_txout;
 };
