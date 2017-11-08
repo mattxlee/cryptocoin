@@ -7,48 +7,7 @@ namespace data {
 
 namespace utils {
 
-std::vector<uint8_t> ToData(const std::string &str) {
-  std::vector<uint8_t> data(str.size() + sizeof(uint32_t));
-  uint32_t size = htonl(str.size());
-  memcpy(data.data(), &size, sizeof(size));
-  memcpy(data.data() + sizeof(size), str.c_str(), str.size());
-  return data;
-}
-
-size_t FromData(DataIterator begin, DataIterator end, std::string &out) {
-  assert((size_t)std::distance(begin, end) > sizeof(uint32_t));
-  uint32_t size;
-  memcpy(&size, &(*begin), sizeof(size));
-  size = ntohl(size);
-  assert((size_t)std::distance(begin, end) >= sizeof(uint32_t) + size);
-  char *buf = new char[size + 1];
-  memcpy(buf, &(*begin) + sizeof(uint32_t), size);
-  buf[size] = '\0';
-  out = buf;
-  delete[] buf;
-  return out.size() + sizeof(size);
-}
-
-size_t FromData(DataIterator begin, DataIterator end, uint16_t &out) {
-  assert((size_t)std::distance(begin, end) >= sizeof(out));
-  memcpy(&out, &(*begin), sizeof(out));
-  out = ntohs(out);
-  return sizeof(out);
-}
-
-size_t FromData(DataIterator begin, DataIterator end, uint32_t &out) {
-  assert((size_t)std::distance(begin, end) >= sizeof(out));
-  memcpy(&out, &(*begin), sizeof(out));
-  out = ntohl(out);
-  return sizeof(out);
-}
-
-size_t FromData(DataIterator begin, DataIterator end, uint64_t &out) {
-  assert((size_t)std::distance(begin, end) >= sizeof(out));
-  memcpy(&out, &(*begin), sizeof(out));
-  out = ntohll(out);
-  return sizeof(out);
-}
+// EMPTY.
 
 }  // namespace utils
 

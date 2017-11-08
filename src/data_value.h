@@ -17,13 +17,10 @@ typedef std::function<void(ConstDataIterator, ConstDataIterator)> WithFuncType;
 namespace utils {
 
 template <typename IntType>
-std::vector<uint8_t> ToData(const IntType value) {
+IntType HostToNet(const IntType value) {
   size_t size = sizeof(value);
-  IntType value_n;
+  IntType value_n = value;
   switch (size) {
-    case 1:
-      value_n = value;
-      break;
     case 2:
       value_n = htons(value);
       break;
@@ -34,40 +31,50 @@ std::vector<uint8_t> ToData(const IntType value) {
       value_n = htonll(value);
       break;
   }
-  std::vector<uint8_t> data(sizeof(value));
-  memcpy(data.data(), &value_n, sizeof(value));
-  return data;
+  return value_n;
 }
 
-std::vector<uint8_t> ToData(const std::string &str);
-
-size_t FromData(DataIterator begin, DataIterator end, std::string &out);
-size_t FromData(DataIterator begin, DataIterator end, uint16_t &out);
-size_t FromData(DataIterator begin, DataIterator end, uint32_t &out);
-size_t FromData(DataIterator begin, DataIterator end, uint64_t &out);
+template <typename IntType>
+IntType NetToHost(IntType value_n) {
+  size_t size = sizeof(IntType);
+  IntType value = value_n;
+  switch (size) {
+    case 2:
+      value = ntohs(value);
+      break;
+    case 4:
+      value = ntohl(value);
+      break;
+    case 8:
+      value = ntohll(value);
+      break;
+  }
+  return value;
+}
 
 }  // namespace utils
 
 template <typename T>
 class Value {
  public:
+  T value;
+
+ public:
   Value() {}
-  Value(const T &value) : value_(value) {}
+  Value(const T &another) : value(another) {}
 
-  DataIterator set_data(DataIterator begin, DataIterator end) {
-    size_t bytes_taken = utils::FromData(begin, end, value_);
-    return begin + bytes_taken;
+  template <typename Stream>
+  void WriteToStream(Stream &s) {
+    auto value_n = utils::HostToNet(value);
+    s.write(&value_n, sizeof(value_n));
   }
 
-  std::vector<uint8_t> get_data() const { return utils::ToData(value_); }
-
-  void WithData(const WithFuncType &func) const {
-    std::vector<uint8_t> data = utils::ToData(value_);
-    func(data.cbegin(), data.cend());
+  template <typename Stream>
+  void ReadFromStream(const Stream &s) {
+    T value_n;
+    s.read(&value_n, sizeof(value_n));
+    value = utils::NetToHost(value_n);
   }
-
- private:
-  T value_;
 };
 
 template <typename T>
@@ -76,34 +83,64 @@ Value<T> MakeValue(T &&value) {
 }
 
 template <>
-class Value<std::vector<uint8_t>> {
+class Value<std::string> {
+ public:
+  std::string value;
+
  public:
   Value() {}
-  Value(const std::vector<uint8_t> &value) : value_(value) {}
-  Value(std::vector<uint8_t> &&value) { value_ = std::move(value); }
+  Value(const std::string &another) : value(another) {}
 
-  DataIterator set_data(DataIterator begin, DataIterator end) {
-    value_.assign(begin, end);
-    return end;
+  template <typename Stream>
+  void WriteToStream(Stream &s) {
+    uint32_t size = value.size();
+    uint32_t size_n = utils::HostToNet(size);
+    s.write(&size_n, sizeof(size_n));
+    s.write(value.c_str(), value.size());
   }
 
-  const std::vector<uint8_t> &get_data() const { return value_; }
-
-  void WithData(const WithFuncType &func) const {
-    func(value_.cbegin(), value_.cend());
+  template <typename Stream>
+  void ReadFromStream(const Stream &s) {
+    uint32_t size_n;
+    s.read(&size_n, sizeof(size_n));
+    uint32_t size = utils::NetToHost(size_n);
+    char *buf = new char[size + 1];
+    s.read(buf, size);
+    buf[size] = '\0';
+    value = buf;
+    delete[] buf;
   }
+};
 
-  const uint8_t *get_buffer() const { return value_.data(); }
-  size_t get_size() const { return value_.size(); }
+template <>
+class Value<std::vector<uint8_t>> {
+ public:
+  std::vector<uint8_t> value;
 
-  void Resize(size_t new_size) { value_.resize(new_size); }
+ public:
+  Value() {}
+  Value(const std::vector<uint8_t> &another) : value(another) {}
+
   void CopyFrom(const uint8_t *p, size_t size) {
-    value_.resize(size);
-    memcpy(value_.data(), p, size);
+    value.resize(size);
+    memcpy(value.data(), p, size);
   }
 
- private:
-  std::vector<uint8_t> value_;
+  template <typename Stream>
+  void WriteToStream(Stream &s) {
+    uint32_t size_n = utils::HostToNet(value.size());
+    s.write(&size_n, sizeof(size_n));
+    s.write(value.data(), value.size());
+  }
+
+  template <typename Stream>
+  void ReadFromStream(const Stream &s) {
+    uint32_t size;
+    s.read(&size, sizeof(size));
+    size = utils::NetToHost(size);
+    value.resize(size);
+    s.read(value.data(), size);
+  }
 };
 
 typedef Value<std::vector<uint8_t>> Buffer;
