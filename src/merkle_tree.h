@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "hash_utils.h"
+#include "data_value.h"
 
 namespace coin {
 namespace mt {
@@ -19,7 +19,7 @@ class Node {
    *
    * @param data Data to hash.
    */
-  explicit Node(const DataValue &hash);
+  explicit Node(const data::Buffer &hash);
 
   /**
    * @brief Constructor for Node.
@@ -31,7 +31,7 @@ class Node {
   Node(NodePtr left, NodePtr right, NodePtr parent);
 
   /// Get hash value.
-  const DataValue &get_hash() const;
+  const data::Buffer &get_hash() const;
 
   /// Set parent value.
   void set_parent(NodePtr parent) { parent_ = parent; }
@@ -43,7 +43,7 @@ class Node {
   NodePtr left_;
   NodePtr right_;
   NodePtr parent_;
-  DataValue hash_;
+  data::Buffer hash_;
 };
 
 NodePtr MakeMerkleTree(const std::vector<NodePtr> &vec_node);

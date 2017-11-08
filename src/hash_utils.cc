@@ -23,46 +23,49 @@ void Hash256::Final() {
   finished_ = true;
 }
 
-std::string HashToStr(const DataValue &hash, int num_of_digits) {
+std::string HashToStr(const data::Buffer &hash, int num_of_digits) {
   std::stringstream ss;
-  char digits[3];
-  int n = 0;
-  auto it = std::begin(hash);
-  while (n < num_of_digits && it < std::end(hash)) {
-    sprintf(digits, "%02x", *it);
-    ss << digits;
-    // next
-    ++n;
-    ++it;
-  }
+  hash.WithData([num_of_digits, &ss](data::ConstDataIterator begin,
+                                     data::ConstDataIterator end) {
+    char digits[3];
+    int n = 0;
+    auto it = begin;
+    while (n < num_of_digits && it < end) {
+      sprintf(digits, "%02x", *it);
+      ss << digits;
+      // next
+      ++n;
+      ++it;
+    }
+  });
   return ss.str();
 }
 
-DataValue ToDataValue(const int &value) {
-  int value_n = htonl(value);
-  DataValue data(sizeof(value_n));
-  memcpy(data.data(), &value_n, sizeof(value_n));
-  return data;
-}
-
-DataValue ToDataValue(const short &value) {
-  short value_n = htons(value);
-  DataValue data(sizeof(value_n));
-  memcpy(data.data(), &value_n, sizeof(value_n));
-  return data;
-}
-
-DataValue ToDataValue(const uint64_t &value) {
-  uint64_t value_n = htonll(value);
-  DataValue data(sizeof(value_n));
-  memcpy(data.data(), &value_n, sizeof(value_n));
-  return data;
-}
-
-DataValue ToDataValue(const std::string &value) {
-  DataValue data(value.size());
-  memcpy(data.data(), value.c_str(), value.size());
-  return data;
-}
+// DataValue ToDataValue(const int &value) {
+//   int value_n = htonl(value);
+//   DataValue data(sizeof(value_n));
+//   memcpy(data.data(), &value_n, sizeof(value_n));
+//   return data;
+// }
+//
+// DataValue ToDataValue(const short &value) {
+//   short value_n = htons(value);
+//   DataValue data(sizeof(value_n));
+//   memcpy(data.data(), &value_n, sizeof(value_n));
+//   return data;
+// }
+//
+// DataValue ToDataValue(const uint64_t &value) {
+//   uint64_t value_n = htonll(value);
+//   DataValue data(sizeof(value_n));
+//   memcpy(data.data(), &value_n, sizeof(value_n));
+//   return data;
+// }
+//
+// DataValue ToDataValue(const std::string &value) {
+//   DataValue data(value.size());
+//   memcpy(data.data(), value.c_str(), value.size());
+//   return data;
+// }
 
 }  // namespace coin

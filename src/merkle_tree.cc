@@ -1,9 +1,11 @@
 #include "merkle_tree.h"
 
+#include "hash_utils.h"
+
 namespace coin {
 namespace mt {
 
-Node::Node(const DataValue &hash) : hash_(hash) {}
+Node::Node(const data::Buffer &hash) : hash_(hash) {}
 
 Node::Node(NodePtr left, NodePtr right, NodePtr parent)
     : left_(left), right_(right), parent_(parent) {

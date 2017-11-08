@@ -5,10 +5,9 @@
 
 #include <openssl/sha.h>
 
-namespace coin {
+#include "data_value.h"
 
-/// Basic data-value store.
-typedef std::vector<uint8_t> DataValue;
+namespace coin {
 
 /// Hash 256 algorithm.
 class Hash256 {
@@ -34,17 +33,20 @@ class Hash256 {
 template <typename HashAlgo>
 class HashBuilder {
  public:
-  HashBuilder &operator<<(const DataValue &data) {
+  template <typename DataValue>
+  HashBuilder &operator<<(const DataValue &value) {
     assert(!algo_.is_finished());
-    algo_.Calculate(data.data(), data.size());
+    value.WithData([this](data::DataIterator begin, data::DataIterator end) {
+      algo_.Calculate(&(*begin), std::distance(begin, end));
+    });
     return *this;
   }
 
-  DataValue FinalValue() {
+  data::Buffer FinalValue() {
     algo_.Final();
-    DataValue data(algo_.get_md_size());
-    memcpy(data.data(), algo_.get_md(), data.size());
-    return data;
+    data::Buffer buffer;
+    buffer.CopyFrom(algo_.get_md(), algo_.get_md_size());
+    return buffer;
   }
 
  private:
@@ -54,19 +56,7 @@ class HashBuilder {
 typedef HashBuilder<Hash256> Hash256Builder;
 
 /// Convert DataValue to string.
-std::string HashToStr(const DataValue &hash, int num_of_digits = 4);
-
-/// Convert 16bits integer value to DataValue.
-DataValue ToDataValue(const int &value);
-
-/// Convert 32bits integer value to DataValue.
-DataValue ToDataValue(const short &value);
-
-/// Convert 64bits integer value to DataValue.
-DataValue ToDataValue(const uint64_t &value);
-
-/// Convert string value to DataValue.
-DataValue ToDataValue(const std::string &value);
+std::string HashToStr(const data::Buffer &hash, int num_of_digits = 4);
 
 }  // namespace coin
 
