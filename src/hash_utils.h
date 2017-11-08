@@ -36,7 +36,7 @@ class HashBuilder {
   template <typename DataValue>
   HashBuilder &operator<<(const DataValue &value) {
     assert(!algo_.is_finished());
-    value.WithData([this](data::DataIterator begin, data::DataIterator end) {
+    value.WithData([this](data::ConstDataIterator begin, data::ConstDataIterator end) {
       algo_.Calculate(&(*begin), std::distance(begin, end));
     });
     return *this;
