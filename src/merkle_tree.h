@@ -28,10 +28,10 @@ class Node {
    * @param right Right child.
    * @param parent Parent child.
    */
-  Node(NodePtr left, NodePtr right, NodePtr parent);
+  Node(NodePtr left, NodePtr right);
 
   /// Get hash value.
-  const data::Buffer &get_hash() const;
+  const data::Buffer &get_hash() const { return hash_; }
 
   /// Set parent value.
   void set_parent(NodePtr parent) { parent_ = parent; }
