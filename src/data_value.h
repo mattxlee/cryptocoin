@@ -16,10 +16,30 @@ typedef std::function<void(ConstDataIterator, ConstDataIterator)> WithFuncType;
 
 namespace utils {
 
+template <typename IntType>
+std::vector<uint8_t> ToData(const IntType value) {
+  size_t size = sizeof(value);
+  IntType value_n;
+  switch (size) {
+    case 1:
+      value_n = value;
+      break;
+    case 2:
+      value_n = htons(value);
+      break;
+    case 4:
+      value_n = htonl(value);
+      break;
+    case 8:
+      value_n = htonll(value);
+      break;
+  }
+  std::vector<uint8_t> data(sizeof(value));
+  memcpy(data.data(), &value_n, sizeof(value));
+  return data;
+}
+
 std::vector<uint8_t> ToData(const std::string &str);
-std::vector<uint8_t> ToData(const uint16_t value);
-std::vector<uint8_t> ToData(const uint32_t value);
-std::vector<uint8_t> ToData(const uint64_t value);
 
 size_t FromData(DataIterator begin, DataIterator end, std::string &out);
 size_t FromData(DataIterator begin, DataIterator end, uint16_t &out);
@@ -33,7 +53,6 @@ class Value {
  public:
   Value() {}
   Value(const T &value) : value_(value) {}
-  Value(T &&value) { value_ = std::move(value); }
 
   DataIterator set_data(DataIterator begin, DataIterator end) {
     size_t bytes_taken = utils::FromData(begin, end, value_);
@@ -51,6 +70,11 @@ class Value {
   T value_;
 };
 
+template <typename T>
+Value<T> MakeValue(T &&value) {
+  return Value<T>(std::forward<T>(value));
+}
+
 template <>
 class Value<std::vector<uint8_t>> {
  public:
@@ -63,7 +87,7 @@ class Value<std::vector<uint8_t>> {
     return end;
   }
 
-  std::vector<uint8_t> get_data() const { return value_; }
+  const std::vector<uint8_t> &get_data() const { return value_; }
 
   void WithData(const WithFuncType &func) const {
     func(value_.cbegin(), value_.cend());

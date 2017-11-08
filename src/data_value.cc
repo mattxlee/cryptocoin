@@ -15,27 +15,6 @@ std::vector<uint8_t> ToData(const std::string &str) {
   return data;
 }
 
-std::vector<uint8_t> ToData(const uint16_t value) {
-  std::vector<uint8_t> data(sizeof(value));
-  uint16_t value_n = htons(value);
-  memcpy(data.data(), &value_n, sizeof(value_n));
-  return data;
-}
-
-std::vector<uint8_t> ToData(const uint32_t value) {
-  std::vector<uint8_t> data(sizeof(value));
-  uint32_t value_n = htonl(value);
-  memcpy(data.data(), &value_n, sizeof(value_n));
-  return data;
-}
-
-std::vector<uint8_t> ToData(const uint64_t value) {
-  std::vector<uint8_t> data(sizeof(value));
-  uint64_t value_n = htonll(value);
-  memcpy(data.data(), &value_n, sizeof(value_n));
-  return data;
-}
-
 size_t FromData(DataIterator begin, DataIterator end, std::string &out) {
   assert((size_t)std::distance(begin, end) > sizeof(uint32_t));
   uint32_t size;
