@@ -25,19 +25,16 @@ void Hash256::Final() {
 
 std::string HashToStr(const data::Buffer &hash, int num_of_digits) {
   std::stringstream ss;
-  hash.WithData([num_of_digits, &ss](data::ConstDataIterator begin,
-                                     data::ConstDataIterator end) {
-    char digits[3];
-    int n = 0;
-    auto it = begin;
-    while (n < num_of_digits && it < end) {
-      sprintf(digits, "%02x", *it);
-      ss << digits;
-      // next
-      ++n;
-      ++it;
-    }
-  });
+  char digits[3];
+  int n = 0;
+  auto it = std::begin(hash.value), end = std::end(hash.value);
+  while (n < num_of_digits && it < end) {
+    sprintf(digits, "%02x", *it);
+    ss << digits;
+    // next
+    ++n;
+    ++it;
+  }
   return ss.str();
 }
 
