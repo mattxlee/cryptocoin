@@ -26,15 +26,15 @@ file(GLOB GOOGLE_TEST_SRC "./googletest/googletest/src/gtest-all.cc")
 file(GLOB GOOGLE_TEST_MAIN "./googletest/googletest/src/gtest_main.cc")
 # ==== GOOGLE TEST ====
 
-# ==== Data Value Test ====
-set(DATA_VALUE_TEST_SRC "test/data_value_test.cc")
-# ==== Data Value Test ====
+# ==== Test ====
+set(TEST_SRC "test/test.cc")
+# ==== Test ====
 
-add_executable(data_value_test
+add_executable(cryptocoin_test
   ${GOOGLE_TEST_SRC}
   ${GOOGLE_TEST_MAIN}
-  ${DATA_VALUE_TEST_SRC}
+  ${TEST_SRC}
   )
 
-target_link_libraries(data_value_test ${PTHREAD})
+target_link_libraries(cryptocoin_test ${PTHREAD})
 

@@ -16,6 +16,27 @@ std::tuple<T, bool> StreamReadWriteValCompare() {
   return std::make_tuple(value, value == value_obj.value);
 }
 
+TEST(HostAndNet, Int16Swap) {
+  const uint16_t TEST_VALUE_HOST = 0x1020;
+  const uint16_t TEST_VALUE_NET = 0x2010;
+  uint16_t test_value_net = coin::data::utils::HostToNet(TEST_VALUE_HOST);
+  EXPECT_EQ(test_value_net, TEST_VALUE_NET);
+}
+
+TEST(HostAndNet, Int32Swap) {
+  const uint32_t TEST_VALUE_HOST = 0x10203040;
+  const uint32_t TEST_VALUE_NET = 0x40302010;
+  uint32_t test_value_net = coin::data::utils::HostToNet(TEST_VALUE_HOST);
+  EXPECT_EQ(test_value_net, TEST_VALUE_NET);
+}
+
+TEST(HostAndNet, Int64Swap) {
+  const uint64_t TEST_VALUE_HOST = 0x1020304050607080;
+  const uint64_t TEST_VALUE_NET = 0x8070605040302010;
+  uint64_t test_value_net = coin::data::utils::HostToNet(TEST_VALUE_HOST);
+  EXPECT_EQ(test_value_net, TEST_VALUE_NET);
+}
+
 TEST(DataValue, Int8) {
   uint8_t value;
   bool test_result;
