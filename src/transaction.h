@@ -26,9 +26,6 @@ class TransactionBase {
   /// Transaction type value, starts from 0.
   virtual int get_type() const = 0;
 
-  /// Calculate hash value.
-  virtual data::Buffer CalcHash() const = 0;
-
  private:
   time_t time_ = 0;
 };

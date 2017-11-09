@@ -27,6 +27,4 @@ void Transaction::add_tx_in(const TxIn &in) { vec_txin.push_back(in); }
 
 void Transaction::add_tx_out(const TxOut &out) { vec_txout.push_back(out); }
 
-data::Buffer Transaction::CalcHash() const {}
-
 }  // namespace coin
