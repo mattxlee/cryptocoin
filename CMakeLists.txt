@@ -9,7 +9,10 @@ find_library(SECP256K1 secp256k1)
 set(CMAKE_CXX_FLAGS "-std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
-include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(
+  ${OPENSSL_INCLUDE_DIR}
+  "./src"
+  )
 
 file(GLOB CRYPTOCOIN_SRC "./src/*.cc")
 

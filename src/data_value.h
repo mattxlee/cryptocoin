@@ -57,30 +57,25 @@ IntType NetToHost(IntType value_n) {
 template <typename T>
 class Value {
  public:
-  T value;
+  T value = 0;
 
  public:
   Value() {}
   Value(const T &another) : value(another) {}
 
   template <typename Stream>
-  void WriteToStream(Stream &s) {
+  void WriteToStream(Stream &s) const {
     auto value_n = utils::HostToNet(value);
-    s.write(&value_n, sizeof(value_n));
+    s.write((const char *)&value_n, sizeof(value_n));
   }
 
   template <typename Stream>
-  void ReadFromStream(const Stream &s) {
+  void ReadFromStream(Stream &s) {
     T value_n;
-    s.read(&value_n, sizeof(value_n));
+    s.read((char *)&value_n, sizeof(value_n));
     value = utils::NetToHost(value_n);
   }
 };
-
-template <typename T>
-Value<T> MakeValue(T &&value) {
-  return Value<T>(std::forward<T>(value));
-}
 
 template <>
 class Value<std::string> {
@@ -95,14 +90,14 @@ class Value<std::string> {
   void WriteToStream(Stream &s) {
     uint32_t size = value.size();
     uint32_t size_n = utils::HostToNet(size);
-    s.write(&size_n, sizeof(size_n));
+    s.write((const char *)&size_n, sizeof(size_n));
     s.write(value.c_str(), value.size());
   }
 
   template <typename Stream>
-  void ReadFromStream(const Stream &s) {
+  void ReadFromStream(Stream &s) {
     uint32_t size_n;
-    s.read(&size_n, sizeof(size_n));
+    s.read((char *)&size_n, sizeof(size_n));
     uint32_t size = utils::NetToHost(size_n);
     char *buf = new char[size + 1];
     s.read(buf, size);
@@ -142,6 +137,11 @@ class Value<std::vector<uint8_t>> {
     s.read(value.data(), size);
   }
 };
+
+template <typename T>
+Value<T> MakeValue(const T &value) {
+  return Value<T>(value);
+}
 
 typedef Value<std::vector<uint8_t>> Buffer;
 
