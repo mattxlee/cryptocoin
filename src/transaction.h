@@ -47,9 +47,16 @@ struct TxIn {
 
   template <typename Stream>
   void Serialize(Stream &s) {
-    s << tx_hash;
-    s << data::MakeValue(out_index);
-    s << signature;
+    data::MakeValue(tx_hash).WriteToStream(s);
+    data::MakeValue(out_index).WriteToStream(s);
+    data::MakeValue(signature).WriteToStream(s);
+  }
+
+  template <typename Stream>
+  void Unserialize(Stream &s) {
+    tx_hash.ReadFromStream(s);
+    out_index = data::ReadValue<uint32_t>(s);
+    signature.ReadFromStream(s);
   }
 };
 
@@ -66,8 +73,14 @@ struct TxOut {
 
   template <typename Stream>
   void Serialize(Stream &s) {
-    s << data::MakeValue(address);
-    s << data::MakeValue(amount);
+    data::MakeValue(address).WriteToStream(s);
+    data::MakeValue(amount).WriteToStream(s);
+  }
+
+  template <typename Stream>
+  void Unserialize(Stream &s) {
+    address = data::ReadValue<std::string>(s);
+    amount = data::ReadValue<uint64_t>(s);
   }
 };
 
@@ -108,7 +121,7 @@ class Transaction : public TransactionBase {
     // Header values.
     s << data::MakeValue(get_type());                    // type
     s << data::MakeValue(static_cast<int>(get_time()));  // timestamp
-    s << pub_key_;                                   // public key
+    s << pub_key_;                                       // public key
 
     // Tx in/out merkle tree hash value.
     mt::NodePtr txin_root = mt::MakeMerkleTree(vec_txin);    // TxIn

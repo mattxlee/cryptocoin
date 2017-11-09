@@ -36,9 +36,8 @@ class HashBuilder {
   template <typename DataValue>
   HashBuilder &operator<<(const DataValue &value) {
     assert(!algo_.is_finished());
-    value.WithData([this](data::ConstDataIterator begin, data::ConstDataIterator end) {
-      algo_.Calculate(&(*begin), std::distance(begin, end));
-    });
+    auto data = value.MakeStreamData();
+    algo_.Calculate(data.data(), data.size());
     return *this;
   }
 

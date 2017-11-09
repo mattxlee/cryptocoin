@@ -58,9 +58,7 @@ uint64_t HostToNet(uint64_t value) {
   return (l << 32) + h;
 }
 
-uint64_t NetToHost(uint64_t value_n) {
-  return HostToNet(value_n);
-}
+uint64_t NetToHost(uint64_t value_n) { return HostToNet(value_n); }
 
 }  // namespace utils
 
@@ -84,6 +82,13 @@ class Value {
     T value_n;
     s.read((char *)&value_n, sizeof(value_n));
     value = utils::NetToHost(value_n);
+  }
+
+  std::vector<uint8_t> MakeStreamData() const {
+    std::vector<uint8_t> data(sizeof(T));
+    T value_stream = utils::HostToNet(value);
+    memcpy(data.data(), &value_stream, sizeof(T));
+    return data;
   }
 };
 
@@ -114,6 +119,14 @@ class Value<std::string> {
     buf[size] = '\0';
     value = buf;
     delete[] buf;
+  }
+
+  std::vector<uint8_t> MakeStreamData() const {
+    std::vector<uint8_t> data(value.size() + sizeof(uint32_t));
+    uint32_t size = value.size();
+    memcpy(data.data(), &size, sizeof(size));
+    memcpy(data.data() + sizeof(size), value.c_str(), value.size());
+    return data;
   }
 };
 
@@ -146,11 +159,26 @@ class Value<std::vector<uint8_t>> {
     value.resize(size);
     s.read(value.data(), size);
   }
+
+  std::vector<uint8_t> MakeStreamData() const {
+    std::vector<uint8_t> data(value.size() + sizeof(uint32_t));
+    uint32_t size = value.size();
+    memcpy(data.data(), &size, sizeof(size));
+    memcpy(data.data() + sizeof(size), value.data(), value.size());
+    return data;
+  }
 };
 
 template <typename T>
 Value<T> MakeValue(const T &value) {
   return Value<T>(value);
+}
+
+template <typename Stream, typename T>
+T ReadValue(Stream &s) {
+  Value<T> value;
+  value.ReadFromStream(s);
+  return value.value;
 }
 
 typedef Value<std::vector<uint8_t>> Buffer;
