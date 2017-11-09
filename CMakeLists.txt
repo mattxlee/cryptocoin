@@ -11,9 +11,24 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 include_directories(${OPENSSL_INCLUDE_DIR})
 
-file(GLOB src "./src/*.cc")
+file(GLOB CRYPTOCOIN_SRC "./src/*.cc")
 
-add_library(cryptocoin SHARED ${src})
+# ==== GOOGLE TEST ====
+include_directories(
+  "./googletest/googletest/"
+  "./googletest/googletest/include"
+  )
+file(GLOB GOOGLE_TEST_SRC "./googletest/googletest/src/gtest-all.cc")
+file(GLOB GOOGLE_TEST_MAIN "./googletest/googletest/src/gtest_main.cc")
+# ==== GOOGLE TEST ====
 
-target_link_libraries(cryptocoin ${OPENSSL_LIBRARIES} ${SECP256K1})
+# ==== Data Value Test ====
+set(DATA_VALUE_TEST_SRC "test/data_value_test.cc")
+# ==== Data Value Test ====
+
+add_executable(data_value_test
+  ${GOOGLE_TEST_SRC}
+  ${GOOGLE_TEST_MAIN}
+  ${DATA_VALUE_TEST_SRC}
+  )
 
