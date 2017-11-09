@@ -124,7 +124,12 @@ class Transaction : public TransactionBase {
     mt::NodePtr txin_root = mt::MakeMerkleTree(vec_txin);    // TxIn
     mt::NodePtr txout_root = mt::MakeMerkleTree(vec_txout);  // TxOut
     Hash256Builder hash_builder;
-    hash_builder << txin_root->get_hash() << txout_root->get_hash();
+    if (txin_root) {
+      hash_builder << txin_root->get_hash();;
+    }
+    if (txout_root) {
+      hash_builder << txout_root->get_hash();
+    }
     hash_builder.FinalValue().WriteToStream(s);
 
     // TxIn list.
