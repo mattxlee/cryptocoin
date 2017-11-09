@@ -31,9 +31,6 @@ IntType HostToNet(const IntType value) {
     case 4:
       value_n = htonl(value);
       break;
-    case 8:
-      value_n = htonll(value);
-      break;
   }
   return value_n;
 }
@@ -49,11 +46,18 @@ IntType NetToHost(IntType value_n) {
     case 4:
       value = ntohl(value);
       break;
-    case 8:
-      value = ntohll(value);
-      break;
   }
   return value;
+}
+
+uint64_t HostToNet(uint64_t value) {
+  uint64_t h = (value & 0xffff0000) >> 32;
+  uint64_t l = value & 0x0000ffff;
+  return (l << 32) + h;
+}
+
+uint64_t NetToHost(uint64_t value_n) {
+  return HostToNet(value_n);
 }
 
 }  // namespace utils
