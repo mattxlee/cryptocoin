@@ -23,6 +23,9 @@ class TransactionBase {
   /// Get timestamp.
   time_t get_time() const { return time_; }
 
+  /// Set timestamp.
+  void set_time(time_t time) { time_ = time; }
+
   /// Transaction type value, starts from 0.
   virtual int get_type() const = 0;
 
@@ -100,8 +103,11 @@ data::Buffer MakeTxSignature(const ecdsa::Key &key, const data::Buffer &tx_hash,
 /// Spend transaction.
 class Transaction : public TransactionBase {
  public:
+  enum { TypeValue = 0 };
+
+ public:
   /// The type of current transaction.
-  virtual int get_type() const override { return 0; }
+  virtual int get_type() const override { return Transaction::TypeValue; }
 
   /// Set public key, verification of TxIn.
   void set_pub_key(const data::Buffer &pub_key);
@@ -125,7 +131,7 @@ class Transaction : public TransactionBase {
     mt::NodePtr txout_root = mt::MakeMerkleTree(vec_txout);  // TxOut
     Hash256Builder hash_builder;
     if (txin_root) {
-      hash_builder << txin_root->get_hash();;
+      hash_builder << txin_root->get_hash();
     }
     if (txout_root) {
       hash_builder << txout_root->get_hash();
@@ -147,7 +153,36 @@ class Transaction : public TransactionBase {
 
   /// Unserialize from stream.
   template <typename Stream>
-  void Unserialize(Stream &s) {}
+  void Unserialize(Stream &s) {
+    // Type.
+    int type = data::ReadValue<int>(s);
+    assert(type == Transaction::TypeValue);
+
+    // Timestamp.
+    set_time(data::ReadValue<time_t>(s));
+
+    // Public key.
+    pub_key_.ReadFromStream(s);
+
+    // Merkle tree hash value.
+    auto merkle_hash = data::ReadValue<std::vector<uint8_t>>(s);
+
+    // TxIn list.
+    auto txin_n = data::ReadValue<int>(s);
+    for (int i = 0; i < txin_n; ++i) {
+      TxIn txin;
+      txin.Unserialize(s);
+      vec_txin.push_back(txin);
+    }
+
+    // TxOut list.
+    auto txout_n = data::ReadValue<int>(s);
+    for (int i = 0; i < txout_n; ++i) {
+      TxOut txout;
+      txout.Unserialize(s);
+      vec_txout.push_back(txout);
+    }
+  }
 
  private:
   data::Buffer pub_key_;
