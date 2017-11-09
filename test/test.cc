@@ -1,8 +1,10 @@
 #include <sstream>
 #include <string>
 
-#include "data_value.h"
 #include "gtest/gtest.h"
+
+#include "data_value.h"
+#include "transaction.h"
 
 template <typename T>
 std::tuple<T, bool> StreamReadWriteValCompare() {
@@ -77,4 +79,10 @@ TEST(DataValue, String) {
   value_obj.value.clear();
   value_obj.ReadFromStream(ss);
   EXPECT_EQ(value_obj.value, TEST_STRING) << "String value: " << TEST_STRING;
+}
+
+TEST(Transaction, DefaultWrite) {
+  coin::Transaction trans;
+  std::stringstream ss;
+  trans.Serialize(ss);
 }

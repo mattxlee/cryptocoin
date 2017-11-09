@@ -43,10 +43,10 @@ struct TxIn {
   }
 
   template <typename Stream>
-  void Serialize(Stream &s) {
-    data::MakeValue(tx_hash).WriteToStream(s);
+  void Serialize(Stream &s) const {
+    tx_hash.WriteToStream(s);
     data::MakeValue(out_index).WriteToStream(s);
-    data::MakeValue(signature).WriteToStream(s);
+    signature.WriteToStream(s);
   }
 
   template <typename Stream>
@@ -69,7 +69,7 @@ struct TxOut {
   }
 
   template <typename Stream>
-  void Serialize(Stream &s) {
+  void Serialize(Stream &s) const {
     data::MakeValue(address).WriteToStream(s);
     data::MakeValue(amount).WriteToStream(s);
   }
@@ -114,27 +114,27 @@ class Transaction : public TransactionBase {
 
   /// Serialize to stream.
   template <typename Stream>
-  size_t Serialize(Stream &s) const {
+  void Serialize(Stream &s) const {
     // Header values.
-    s << data::MakeValue(get_type());                    // type
-    s << data::MakeValue(static_cast<int>(get_time()));  // timestamp
-    s << pub_key_;                                       // public key
+    data::MakeValue(get_type()).WriteToStream(s);  // type
+    data::MakeValue(get_time()).WriteToStream(s);  // timestamp
+    pub_key_.WriteToStream(s);                     // public key
 
     // Tx in/out merkle tree hash value.
     mt::NodePtr txin_root = mt::MakeMerkleTree(vec_txin);    // TxIn
     mt::NodePtr txout_root = mt::MakeMerkleTree(vec_txout);  // TxOut
     Hash256Builder hash_builder;
     hash_builder << txin_root->get_hash() << txout_root->get_hash();
-    s << hash_builder.FinalValue();
+    hash_builder.FinalValue().WriteToStream(s);
 
     // TxIn list.
-    s << data::MakeValue(static_cast<int>(vec_txin.size()));
+    data::MakeValue(static_cast<int>(vec_txin.size())).WriteToStream(s);
     for (const TxIn &in : vec_txin) {
       in.Serialize(s);
     }
 
     // TxOut list.
-    s << data::MakeValue(static_cast<int>(vec_txout.size()));
+    data::MakeValue(static_cast<int>(vec_txout.size())).WriteToStream(s);
     for (const TxOut &out : vec_txout) {
       out.Serialize(s);
     }
@@ -142,10 +142,7 @@ class Transaction : public TransactionBase {
 
   /// Unserialize from stream.
   template <typename Stream>
-  size_t Unserialize(const Stream &s) {}
-
-  /// Calculate hash value.
-  virtual data::Buffer CalcHash() const override;
+  void Unserialize(Stream &s) {}
 
  private:
   data::Buffer pub_key_;

@@ -33,8 +33,10 @@ set(TEST_SRC "test/test.cc")
 add_executable(cryptocoin_test
   ${GOOGLE_TEST_SRC}
   ${GOOGLE_TEST_MAIN}
+  ${CRYPTOCOIN_SRC}
   ${TEST_SRC}
   )
 
-target_link_libraries(cryptocoin_test ${PTHREAD})
+target_link_libraries(cryptocoin_test
+  ${PTHREAD} ${OPENSSL_LIBRARIES} ${SECP256K1})
 

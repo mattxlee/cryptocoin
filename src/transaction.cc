@@ -14,7 +14,7 @@ data::Buffer MakeTxSignature(const ecdsa::Key &key, const data::Buffer &tx_hash,
   auto hash = hash_builder.FinalValue();
 
   // Make signature to hash value.
-  return key.Sign(hash.get_data());
+  return key.Sign(hash.MakeStreamData());
 }
 
 }  // namespace tx
