@@ -2,7 +2,7 @@ language: c++
 install:
   - git clone https://github.com/bitcoin/secp256k1
   - cd secp256k1
-  - ./autogen.sh && ./configure && make && make install
+  - ./autogen.sh && ./configure && make && sudo make install
 script:
   - cmake .
   - make
