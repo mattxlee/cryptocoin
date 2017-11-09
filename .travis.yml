@@ -1,0 +1,7 @@
+language: c++
+script: cmake . && make && ./data_value_test
+compiler:
+  - clang
+  - gcc
+package:
+  - cmake
