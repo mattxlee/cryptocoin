@@ -1,7 +1,11 @@
 #ifndef __DATA_VALUE_H__
 #define __DATA_VALUE_H__
 
+#include <arpa/inet.h>
+
 #include <cassert>
+#include <cstring>
+
 #include <functional>
 #include <string>
 #include <vector>
