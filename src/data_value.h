@@ -96,7 +96,7 @@ class Value<std::string> {
   Value(const std::string &another) : value(another) {}
 
   template <typename Stream>
-  void WriteToStream(Stream &s) {
+  void WriteToStream(Stream &s) const {
     uint32_t size = value.size();
     uint32_t size_n = utils::HostToNet(size);
     s.write((const char *)&size_n, sizeof(size_n));
@@ -139,14 +139,14 @@ class Value<std::vector<uint8_t>> {
   }
 
   template <typename Stream>
-  void WriteToStream(Stream &s) {
+  void WriteToStream(Stream &s) const {
     uint32_t size_n = utils::HostToNet(value.size());
-    s.write(&size_n, sizeof(size_n));
-    s.write(value.data(), value.size());
+    s.write((const char *)&size_n, sizeof(size_n));
+    s.write((const char *)value.data(), value.size());
   }
 
   template <typename Stream>
-  void ReadFromStream(const Stream &s) {
+  void ReadFromStream(Stream &s) {
     uint32_t size;
     s.read(&size, sizeof(size));
     size = utils::NetToHost(size);

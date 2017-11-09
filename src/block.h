@@ -10,10 +10,10 @@ namespace coin {
 class Block {
  public:
   template <typename Stream>
-  size_t Serialize(Stream &s) {}
+  void Serialize(Stream &s) {}
 
   template <typename Stream>
-  void Unserialize(const Stream &s) {}
+  void Unserialize(Stream &s) {}
 
  private:
   // Block base info.
