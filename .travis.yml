@@ -1,5 +1,5 @@
 language: c++
-script: cmake . && make && ./data_value_test
+script: cmake . && make && ./cryptocoin_test
 compiler:
   - clang
   - gcc
