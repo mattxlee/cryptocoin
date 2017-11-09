@@ -5,6 +5,7 @@ project(cryptocoin)
 find_package(OpenSSL REQUIRED)
 
 find_library(SECP256K1 secp256k1)
+find_library(PTHREAD pthread)
 
 set(CMAKE_CXX_FLAGS "-std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -34,4 +35,6 @@ add_executable(data_value_test
   ${GOOGLE_TEST_MAIN}
   ${DATA_VALUE_TEST_SRC}
   )
+
+target_link_libraries(data_value_test ${PTHREAD})
 
