@@ -81,8 +81,45 @@ TEST(DataValue, String) {
   EXPECT_EQ(value_obj.value, TEST_STRING) << "String value: " << TEST_STRING;
 }
 
-TEST(Transaction, DefaultWrite) {
-  coin::Transaction trans;
-  std::stringstream ss;
-  trans.Serialize(ss);
+/// Randomized data.
+std::vector<uint8_t> g_random_data;
+const uint32_t g_random_data_size = 1024 * 1024 * 2;
+
+/// Data-trunk related.
+const uint32_t g_bytes_each_trunk = 102400;
+struct Trunk {
+  std::vector<uint8_t> data;
+};
+std::vector<Trunk> vec_trunk;
+
+/// Make randomized data.
+std::vector<uint8_t> MakeRandomData(int num_of_bytes) {
+  std::vector<uint8_t> result(num_of_bytes);
+  srand(time(NULL));
+  for (int i = 0; i < num_of_bytes; ++i) {
+    result[i] = rand() % 256;
+  }
+  return result;
+}
+
+TEST(MerkleTree, BuildRandomData) {
+  g_random_data = MakeRandomData(g_random_data_size);
+  EXPECT_EQ(g_random_data.size(), g_random_data_size);
+}
+
+TEST(MerkleTree, BuildNodeTrunkList) {
+  auto begin = g_random_data.begin(), end = g_random_data.end();
+  while (begin != end) {
+    size_t copy_size = g_bytes_each_trunk;
+    size_t left_size = std::distance(begin, end);
+    if (left_size < g_bytes_each_trunk) {
+      copy_size = left_size;
+    }
+    Trunk trunk;
+    trunk.data.resize(copy_size);
+    std::memcpy(trunk.data.data(), &(*begin), copy_size);
+    vec_trunk.push_back(std::move(trunk));
+    begin += copy_size;
+  }
+  EXPECT_EQ(vec_trunk.size(), g_random_data_size / g_bytes_each_trunk + 1);
 }
