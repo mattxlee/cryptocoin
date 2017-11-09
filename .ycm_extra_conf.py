@@ -53,6 +53,8 @@ flags = [
 '-isystem', '/usr/include',
 '-isystem', '/usr/local/include',
 '-I', '/usr/local/opt/openssl/include',
+'-I', './googletest/googletest/include',
+'-I', './src',
 ]
 
 
