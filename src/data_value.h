@@ -118,7 +118,7 @@ class Value<std::vector<uint8_t>> {
 
   void CopyFrom(const uint8_t *p, size_t size) {
     value.resize(size);
-    memcpy(value.data(), p, size);
+    std::memcpy(value.data(), p, size);
   }
 
   template <typename Stream>
