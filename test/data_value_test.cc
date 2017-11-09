@@ -55,5 +55,5 @@ TEST(DataValue, String) {
   value_obj.WriteToStream(ss);
   value_obj.value.clear();
   value_obj.ReadFromStream(ss);
-  EXPECT_EQ(value_obj.value, TEST_STRING);
+  EXPECT_EQ(value_obj.value, TEST_STRING) << "String value: " << TEST_STRING;
 }
