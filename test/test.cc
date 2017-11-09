@@ -89,6 +89,13 @@ const uint32_t g_random_data_size = 1024 * 1024 * 2;
 const uint32_t g_bytes_each_trunk = 102400;
 struct Trunk {
   std::vector<uint8_t> data;
+
+  /// Calculate hash value.
+  coin::data::Buffer CalcHash() const {
+    coin::Hash256Builder hash_builder;
+    hash_builder << coin::data::MakeValue(data);
+    return hash_builder.FinalValue();
+  }
 };
 std::vector<Trunk> vec_trunk;
 
@@ -122,4 +129,9 @@ TEST(MerkleTree, BuildNodeTrunkList) {
     begin += copy_size;
   }
   EXPECT_EQ(vec_trunk.size(), g_random_data_size / g_bytes_each_trunk + 1);
+}
+
+TEST(MerkleTree, BuildTree) {
+  auto pnode = coin::mt::MakeMerkleTree(vec_trunk);
+  EXPECT_TRUE(pnode != nullptr);
 }
