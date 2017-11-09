@@ -17,6 +17,8 @@ Node::Node(NodePtr left, NodePtr right) : left_(left), right_(right) {
 bool Node::HasParent() const { return parent_ != nullptr; }
 
 NodePtr MakeMerkleTree(const std::vector<NodePtr> &vec_node) {
+  if (vec_node.empty()) return nullptr;
+
   if (vec_node.size() == 1) {
     // Done.
     return vec_node[0];
