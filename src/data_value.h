@@ -51,8 +51,8 @@ IntType NetToHost(IntType value_n) {
 }
 
 uint64_t HostToNet(uint64_t value) {
-  uint64_t h = (value & 0xffff0000) >> 32;
-  uint64_t l = value & 0x0000ffff;
+  uint64_t h = (value & 0xffffffff00000000) >> 32;
+  uint64_t l = value & 0x00000000ffffffff;
   h = htonl(h);
   l = ntohl(l);
   return (l << 32) + h;
