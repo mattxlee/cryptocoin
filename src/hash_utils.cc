@@ -10,7 +10,9 @@ namespace coin {
 
 Hash256::Hash256() { SHA256_Init(&ctx_); }
 
-Hash256::~Hash256() { Final(); }
+Hash256::~Hash256() {
+  if (!finished_) Final();
+}
 
 void Hash256::Calculate(const uint8_t *p, size_t size) {
   assert(p != nullptr && size > 0);
