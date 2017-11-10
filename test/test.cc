@@ -97,7 +97,10 @@ struct Trunk {
     return hash_builder.FinalValue();
   }
 };
-std::vector<Trunk> vec_trunk;
+std::vector<Trunk> g_vec_trunk;
+
+coin::mt::NodePtr g_proot;
+coin::mt::NodePtr g_proot_dup;
 
 /// Make randomized data.
 std::vector<uint8_t> MakeRandomData(int num_of_bytes) {
@@ -125,13 +128,24 @@ TEST(MerkleTree, BuildNodeTrunkList) {
     Trunk trunk;
     trunk.data.resize(copy_size);
     std::memcpy(trunk.data.data(), &(*begin), copy_size);
-    vec_trunk.push_back(std::move(trunk));
+    g_vec_trunk.push_back(std::move(trunk));
     begin += copy_size;
   }
-  EXPECT_EQ(vec_trunk.size(), g_random_data_size / g_bytes_each_trunk + 1);
+  EXPECT_EQ(g_vec_trunk.size(), g_random_data_size / g_bytes_each_trunk + 1);
 }
 
 TEST(MerkleTree, BuildTree) {
-  auto pnode = coin::mt::MakeMerkleTree(vec_trunk);
-  EXPECT_TRUE(pnode != nullptr);
+  g_proot = coin::mt::MakeMerkleTree(g_vec_trunk);
+  EXPECT_TRUE(g_proot != nullptr);
+}
+
+TEST(MerkleTree, VerifyData_Diff) {
+  auto vec_trunk_dup = g_vec_trunk;
+  EXPECT_TRUE(!vec_trunk_dup.empty());
+  auto &first_trunk = vec_trunk_dup[0];
+  first_trunk.data[0] = 0x01;
+  first_trunk.data[1] = 0x01;
+  first_trunk.data[3] = 0x01;
+  g_proot_dup = coin::mt::MakeMerkleTree(vec_trunk_dup);
+  EXPECT_TRUE(g_proot_dup->get_hash().value != g_proot->get_hash().value);
 }
