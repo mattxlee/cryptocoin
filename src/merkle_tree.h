@@ -39,6 +39,12 @@ class Node {
   /// Get parent node.
   NodePtr get_parent() const { return parent_; }
 
+  /// Get left node.
+  NodePtr get_left() const { return left_; }
+
+  /// Get right node.
+  NodePtr get_right() const { return right_; }
+
   /// Returns true if parent setup.
   bool HasParent() const;
 
