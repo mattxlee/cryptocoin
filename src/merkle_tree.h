@@ -48,6 +48,9 @@ class Node {
   /// Returns true if parent setup.
   bool HasParent() const;
 
+  /// Returns true means this node is a node on bottom.
+  bool IsBottom() const { return left_ == nullptr && right_ == nullptr; }
+
  private:
   NodePtr left_;
   NodePtr right_;
