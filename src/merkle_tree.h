@@ -33,8 +33,11 @@ class Node {
   /// Get hash value.
   const data::Buffer &get_hash() const { return hash_; }
 
-  /// Set parent value.
+  /// Set parent node.
   void set_parent(NodePtr parent) { parent_ = parent; }
+
+  /// Get parent node.
+  NodePtr get_parent() const { return parent_; }
 
   /// Returns true if parent setup.
   bool HasParent() const;
