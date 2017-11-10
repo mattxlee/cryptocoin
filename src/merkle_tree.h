@@ -69,6 +69,18 @@ NodePtr MakeMerkleTree(const Container &container) {
   return MakeMerkleTree(vec_node);
 }
 
+/**
+ * Compare two merkle-tree and find bad nodes from first merkle-tree.
+ *
+ * @param lhs First merkle-tree root node.
+ * @param rhs Second merkle-tree root node.
+ * @param vec_bad_hash Bad node vector.
+ * @param vec_miss_hash Missing node vector.
+ */
+void CompareMerkleTree(NodePtr lhs, NodePtr rhs,
+                       std::vector<data::Buffer> &vec_bad_hash,
+                       std::vector<data::Buffer> &vec_miss_hash);
+
 }  // namespace mt
 }  // namespace coin
 

@@ -45,5 +45,55 @@ NodePtr MakeMerkleTree(const std::vector<NodePtr> &vec_node) {
   return MakeMerkleTree(next_vec_node);
 }
 
+void AddHashBelonesToNode(const NodePtr node,
+                          std::vector<data::Buffer> &vec_hash) {
+  if (node->IsBottom()) {
+    vec_hash.push_back(node->get_hash());
+    return;
+  }
+
+  // Left.
+  if (node->get_left() != nullptr) {
+    AddHashBelonesToNode(node->get_left(), vec_hash);
+  }
+
+  // Right.
+  if (node->get_right() != nullptr) {
+    AddHashBelonesToNode(node->get_right(), vec_hash);
+  }
+}
+
+void CompareMerkleTree(NodePtr lhs, NodePtr rhs,
+                       std::vector<data::Buffer> &vec_bad_hash,
+                       std::vector<data::Buffer> &vec_miss_hash) {
+  // Identical nodes?
+  if ((lhs->get_hash().value == rhs->get_hash().value) ||
+      (lhs == nullptr && rhs == nullptr)) {
+    return;
+  }
+
+  // **** Continue child checking ****
+
+  if (lhs == nullptr) {
+    // Missing nodes (rhs)
+    AddHashBelonesToNode(rhs, vec_miss_hash);
+    return;
+  }
+
+  if (rhs == nullptr) {
+    // Bad nodes (lhs)
+    AddHashBelonesToNode(lhs, vec_bad_hash);
+    return;
+  }
+
+  // Child left.
+  CompareMerkleTree(lhs->get_left(), rhs->get_left(), vec_bad_hash,
+                    vec_miss_hash);
+
+  // Child right.
+  CompareMerkleTree(lhs->get_right(), rhs->get_right(), vec_bad_hash,
+                    vec_miss_hash);
+}
+
 }  // namespace mt
 }  // namespace coin
