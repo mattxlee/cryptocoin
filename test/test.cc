@@ -99,8 +99,8 @@ struct Trunk {
 };
 std::vector<Trunk> g_vec_trunk;
 
-coin::mt::NodePtr g_proot;
-coin::mt::NodePtr g_proot_dup;
+coin::mt::Node<Trunk>::NodePtr g_proot;
+coin::mt::Node<Trunk>::NodePtr g_proot_dup;
 
 /// Make randomized data.
 std::vector<uint8_t> MakeRandomData(int num_of_bytes) {

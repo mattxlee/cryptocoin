@@ -127,8 +127,8 @@ class Transaction : public TransactionBase {
     pub_key_.WriteToStream(s);                     // public key
 
     // Tx in/out merkle tree hash value.
-    mt::NodePtr txin_root = mt::MakeMerkleTree(vec_txin);    // TxIn
-    mt::NodePtr txout_root = mt::MakeMerkleTree(vec_txout);  // TxOut
+    auto txin_root = mt::MakeMerkleTree(vec_txin);    // TxIn
+    auto txout_root = mt::MakeMerkleTree(vec_txout);  // TxOut
     Hash256Builder hash_builder;
     if (txin_root) {
       hash_builder << txin_root->get_hash();

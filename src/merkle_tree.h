@@ -5,33 +5,60 @@
 #include <vector>
 
 #include "data_value.h"
+#include "hash_utils.h"
 
 namespace coin {
 namespace mt {
 
-class Node;
-typedef std::shared_ptr<Node> NodePtr;
-
+template <typename T>
 class Node {
  public:
+  typedef std::shared_ptr<Node<T>> NodePtr;
+
+ public:
   /**
-   * @brief Make a single node with data.
+   * Make a single node with data.
    *
-   * @param data Data to hash.
+   * If a tree node construct by data of type `T`, means this node is leaf,
+   * and hash value is calculated from pdata_
+   *
+   * @param data Data value.
    */
-  explicit Node(const data::Buffer &hash);
+  explicit Node(const T &data) {
+    pdata_ = std::make_shared<T>(data);
+    hash_ = data.CalcHash();  // Calculate hash value.
+  }
 
   /**
-   * @brief Constructor for Node.
+   * Make a parent node of two child node(left and right).
    *
    * @param left Left child.
    * @param right Right child.
    * @param parent Parent child.
    */
-  Node(NodePtr left, NodePtr right);
+  Node(NodePtr left, NodePtr right) : left_(left), right_(right) {
+    if (left_ != nullptr && right_ != nullptr) {
+      // Both exist.
+      Hash256Builder hash_builder;
+      hash_builder << left_->get_hash() << right_->get_hash();
+      hash_ = hash_builder.FinalValue();
+    } else if (left_ != nullptr) {
+      hash_ = left_->get_hash();
+    } else if (right_ != nullptr) {
+      hash_ = right_->get_hash();
+    } else {
+      // TODO Both nullptr?
+    }
+  }
 
   /// Get hash value.
   const data::Buffer &get_hash() const { return hash_; }
+
+  /// Assign data.
+  void set_data(const T &data) { pdata_ = std::make_shared<T>(data); }
+
+  /// Get data.
+  const std::shared_ptr<T> &get_data() const { return pdata_; }
 
   /// Set parent node.
   void set_parent(NodePtr parent) { parent_ = parent; }
@@ -45,41 +72,58 @@ class Node {
   /// Get right node.
   NodePtr get_right() const { return right_; }
 
-  /// Returns true if parent setup.
-  bool HasParent() const;
+  /// Make merkle-tree
+  static NodePtr MakeMerkleTree(const std::vector<NodePtr> &vec_node) {
+    if (vec_node.empty()) return nullptr;
 
-  /// Returns true means this node is a node on bottom.
-  bool IsBottom() const { return left_ == nullptr && right_ == nullptr; }
+    if (vec_node.size() == 1) {
+      // Done.
+      return vec_node[0];
+    }
+
+    std::vector<NodePtr> next_vec_node;
+
+    // Get and hash.
+    auto i = std::begin(vec_node);
+    while (i != std::end(vec_node)) {
+      NodePtr left = *i;
+      if (i + 1 != std::end(vec_node)) {
+        auto pnode = std::make_shared<Node>(*i, *(i + 1));
+        next_vec_node.push_back(pnode);
+        (*i)->set_parent(pnode);
+        (*(i + 1))->set_parent(pnode);
+        i += 2;
+      } else {
+        next_vec_node.push_back(*i);
+        ++i;
+      }
+    }
+
+    // Build tree in next depth.
+    return MakeMerkleTree(next_vec_node);
+  }
 
  private:
   NodePtr left_;
   NodePtr right_;
   NodePtr parent_;
+  std::shared_ptr<T> pdata_;
   data::Buffer hash_;
 };
 
-NodePtr MakeMerkleTree(const std::vector<NodePtr> &vec_node);
-
+/// Make a new merkle-tree.
 template <typename Container>
-NodePtr MakeMerkleTree(const Container &container) {
-  std::vector<NodePtr> vec_node;
-  for (auto &val : container) {
-    vec_node.emplace_back(std::make_shared<Node>(val.CalcHash()));
+typename Node<typename Container::value_type>::NodePtr MakeMerkleTree(
+    const Container &container) {
+  // Build first-level tree nodes.
+  std::vector<typename Node<typename Container::value_type>::NodePtr> vec_node;
+  // Loop each values from container.
+  for (const typename Container::value_type &val : container) {
+    vec_node.emplace_back(
+        std::make_shared<Node<typename Container::value_type>>(val));
   }
-  return MakeMerkleTree(vec_node);
+  return Node<typename Container::value_type>::MakeMerkleTree(vec_node);
 }
-
-/**
- * Compare two merkle-tree and find bad nodes from first merkle-tree.
- *
- * @param lhs First merkle-tree root node.
- * @param rhs Second merkle-tree root node.
- * @param vec_bad_hash Bad node vector.
- * @param vec_miss_hash Missing node vector.
- */
-void CompareMerkleTree(NodePtr lhs, NodePtr rhs,
-                       std::vector<data::Buffer> &vec_bad_hash,
-                       std::vector<data::Buffer> &vec_miss_hash);
 
 }  // namespace mt
 }  // namespace coin
