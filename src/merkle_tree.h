@@ -111,7 +111,13 @@ class Node {
   data::Buffer hash_;
 };
 
-/// Make a new merkle-tree.
+/**
+ * Make a new merkle-tree.
+ *
+ * @param container Merkle-tree make from values from this container.
+ *
+ * @return Root node of merkle-tree
+ */
 template <typename Container>
 typename Node<typename Container::value_type>::NodePtr MakeMerkleTree(
     const Container &container) {
