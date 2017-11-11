@@ -12,6 +12,17 @@ class BigNum {
   BigNum() {}
   explicit BigNum(uint8_t *value, int len = N) { memcpy(digits_, value, len); }
 
+  bool operator==(const BigNum &another) const {
+    for (int i = 0; i < N; ++i) {
+      if (digits_[i] != another.digits_[i]) return false;
+    }
+    return true;
+  }
+
+  bool operator!=(const BigNum &another) const {
+    return !(*this == another);
+  }
+
   bool operator<(const BigNum &another) const {
     for (int i = 0; i < N; ++i) {
       if (digits_[i] != another.digits_[i]) {
@@ -19,6 +30,10 @@ class BigNum {
       }
     }
     return false;
+  }
+
+  bool operator>(const BigNum &another) const {
+    return !(*this < another) && *this != another;
   }
 
  private:

@@ -3,6 +3,7 @@
 
 #include "gtest/gtest.h"
 
+#include "big_num.h"
 #include "data_value.h"
 #include "transaction.h"
 
@@ -148,4 +149,40 @@ TEST(MerkleTree, VerifyData_Diff) {
   first_trunk.data[3] = 0x01;
   g_proot_dup = coin::mt::MakeMerkleTree(vec_trunk_dup);
   EXPECT_TRUE(g_proot_dup->get_hash().value != g_proot->get_hash().value);
+}
+
+TEST(BigNumber, CompareEquals) {
+  uint8_t n = 128, n2 = 128;
+  coin::bn::BigNum<1> bn1(&n), bn2(&n2);
+  EXPECT_TRUE(bn1 == bn2);
+  EXPECT_FALSE(bn1 != bn2);
+  EXPECT_FALSE(bn1 < bn2);
+  EXPECT_FALSE(bn1 > bn2);
+}
+
+TEST(BigNumber, CompareNotEquals) {
+  uint8_t n = 128, n2 = 129;
+  coin::bn::BigNum<1> bn1(&n), bn2(&n2);
+  EXPECT_TRUE(bn1 != bn2);
+  EXPECT_FALSE(bn1 == bn2);
+  EXPECT_TRUE(bn1 < bn2);
+  EXPECT_FALSE(bn2 > bn2);
+}
+
+TEST(BigNumber, CompareLessThan) {
+  uint8_t n = 128, n2 = 129;
+  coin::bn::BigNum<1> bn1(&n), bn2(&n2);
+  EXPECT_TRUE(bn1 < bn2);
+  EXPECT_FALSE(bn1 > bn2);
+  EXPECT_FALSE(bn1 == bn2);
+  EXPECT_TRUE(bn1 != bn2);
+}
+
+TEST(BigNumber, CompareBiggerThan) {
+  uint8_t n = 130, n2 = 129;
+  coin::bn::BigNum<1> bn1(&n), bn2(&n2);
+  EXPECT_TRUE(bn1 > bn2);
+  EXPECT_FALSE(bn1 == bn2);
+  EXPECT_FALSE(bn1 < bn2);
+  EXPECT_TRUE(bn1 != bn2);
 }
