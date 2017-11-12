@@ -2,7 +2,6 @@
 #define __BIG_NUM_H__
 
 #include <cinttypes>
-#include <regex>
 
 #include "data_value.h"
 
@@ -16,18 +15,13 @@ class BigNum {
   explicit BigNum(const uint8_t *value) { memcpy(digits_, value, N); }
 
   static BigNum<N> FromString(const std::string &str) {
-    std::regex r("^.*?([0-9a-f]+)$");
-    std::smatch m;
-    assert(std::regex_match(str, m, r));
-
-    std::string digits_str = m[1].str();
-    assert(digits_str.size() == N * 2);
+    assert(str.size() == N * 2);
 
     uint8_t val[N];
-    for (int i = 0; i < digits_str.size(); i += 2) {
+    for (int i = 0; i < str.size(); i += 2) {
       char digit[3];
-      digit[0] = digits_str[i];
-      digit[1] = digits_str[i + 1];
+      digit[0] = str[i];
+      digit[1] = str[i + 1];
       digit[2] = '\0';
       int val_scan;
       sscanf(digit, "%x", &val_scan);
