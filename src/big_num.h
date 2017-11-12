@@ -2,6 +2,8 @@
 #define __BIG_NUM_H__
 
 #include <cinttypes>
+#include <regex>
+
 #include "data_value.h"
 
 namespace coin {
@@ -11,7 +13,30 @@ template <int N>
 class BigNum {
  public:
   BigNum() {}
-  explicit BigNum(uint8_t *value, int len = N) { memcpy(digits_, value, len); }
+  explicit BigNum(const uint8_t *value, int len = N) { memcpy(digits_, value, len); }
+
+  static BigNum<N> FromString(const std::string &str) {
+    std::regex r("^0x(\\d+)$");
+    std::smatch m;
+    assert(std::regex_match(str, m, r));
+
+    std::string digits_str = m[1].str();
+    assert(digits_str.size() == N * 2);
+
+    uint8_t val[N];
+    for (int i = 0; i < digits_str.size(); i += 2) {
+      char digit[3];
+      digit[0] = digits_str[i];
+      digit[1] = digits_str[i + 1];
+      digit[2] = '\0';
+      int val_scan;
+      sscanf(digit, "%x", &val_scan);
+      val[i / 2] = val_scan % 256;
+    }
+
+    BigNum<N> num(val);
+    return num;
+  }
 
   BigNum<N> &operator=(const BigNum<N> &rhs) {
     if (this != &rhs) {

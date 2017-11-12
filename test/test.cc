@@ -1,5 +1,6 @@
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "gtest/gtest.h"
 
@@ -157,6 +158,13 @@ TEST(BigNumber, Assign) {
   EXPECT_FALSE(bn1 == bn2);
   bn1 = bn2;
   EXPECT_TRUE(bn1 == bn2);
+}
+
+TEST(BigNumber, InitWithString) {
+  auto num = coin::bn::BigNum<4>::FromString("0x11223344");
+  const uint8_t num_sz[] = {0x11, 0x22, 0x33, 0x44};
+  auto num2 = coin::bn::BigNum<4>(num_sz);
+  EXPECT_EQ(num, num2);
 }
 
 TEST(BigNumber, Stream) {
