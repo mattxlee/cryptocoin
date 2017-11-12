@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "big_num.h"
 #include "data_value.h"
 #include "transaction.h"
 
@@ -18,14 +19,14 @@ class Block {
 
  private:
   // Block base info.
-  data::Buffer block_hash_;
+  bn::HashNum block_hash_;
   int version_ = 1;
   time_t timestamp_;
   uint32_t height_;
   // Below values contain in the calculation of block hash.
-  data::Buffer prev_hash_;
-  data::Buffer merkl_root_hash_;
-  data::Buffer nonce_;
+  bn::HashNum prev_hash_;
+  bn::HashNum merkle_root_hash_;
+  bn::HashNum nonce_;
   std::vector<Transaction> trans_;
 };
 

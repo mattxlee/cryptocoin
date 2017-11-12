@@ -151,6 +151,24 @@ TEST(MerkleTree, VerifyData_Diff) {
   EXPECT_TRUE(g_proot_dup->get_hash().value != g_proot->get_hash().value);
 }
 
+TEST(BigNumber, Assign) {
+  uint8_t n = 100, n2 = 101;
+  coin::bn::BigNum<1> bn1(&n), bn2(&n2);
+  EXPECT_FALSE(bn1 == bn2);
+  bn1 = bn2;
+  EXPECT_TRUE(bn1 == bn2);
+}
+
+TEST(BigNumber, Stream) {
+  uint8_t n = 100, n2 = 101;
+  std::stringstream ss;
+  auto val = coin::data::MakeValue(coin::bn::BigNum<1>(&n));
+  auto val2 = coin::data::MakeValue(coin::bn::BigNum<1>(&n2));
+  val.WriteToStream(ss);
+  val2.ReadFromStream(ss);
+  EXPECT_EQ(val.get_num(), val2.get_num());
+}
+
 TEST(BigNumber, CompareEquals) {
   uint8_t n = 128, n2 = 128;
   coin::bn::BigNum<1> bn1(&n), bn2(&n2);
