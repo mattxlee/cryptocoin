@@ -16,7 +16,7 @@ class BigNum {
   explicit BigNum(const uint8_t *value) { memcpy(digits_, value, N); }
 
   static BigNum<N> FromString(const std::string &str) {
-    std::regex r("^0x(\\d+)$");
+    std::regex r("^0x([0-9a-f]+)$");
     std::smatch m;
     assert(std::regex_match(str, m, r));
 
