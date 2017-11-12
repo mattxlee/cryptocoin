@@ -13,7 +13,7 @@ template <int N>
 class BigNum {
  public:
   BigNum() {}
-  explicit BigNum(const uint8_t *value, int len = N) { memcpy(digits_, value, len); }
+  explicit BigNum(const uint8_t *value) { memcpy(digits_, value, N); }
 
   static BigNum<N> FromString(const std::string &str) {
     std::regex r("^0x(\\d+)$");
@@ -91,12 +91,12 @@ class Value<bn::BigNum<N>> {
   const bn::BigNum<N> &get_num() const { return num_; }
 
   template <typename Stream>
-  void WriteToStream(Stream & s) const {
+  void WriteToStream(Stream &s) const {
     s.write((const char *)num_.get_data(), sizeof(uint8_t) * N);
   }
 
   template <typename Stream>
-  void ReadFromStream(Stream & s) const {
+  void ReadFromStream(Stream &s) const {
     s.read((char *)num_.get_data(), sizeof(uint8_t) * N);
   }
 
