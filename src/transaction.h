@@ -27,11 +27,22 @@ class TransactionBase {
   /// Set timestamp.
   void set_time(time_t time) { time_ = time; }
 
+  /// Get hash value.
+  const bn::HashNum &get_hash() const { return hash_; }
+  bn::HashNum &get_hash() { return hash_; }
+
+  /// Set hash value.
+  void set_hash(const bn::HashNum &hash) { hash_ = hash; }
+
   /// Transaction type value, starts from 0.
   virtual int get_type() const = 0;
 
+  /// Calculate hash value.
+  virtual const bn::HashNum &CalcHash() = 0;
+
  private:
   time_t time_ = 0;
+  bn::HashNum hash_;
 };
 
 /// Transaction incoming tx.
@@ -183,6 +194,21 @@ class Transaction : public TransactionBase {
       txout.Unserialize(s);
       vec_txout.push_back(txout);
     }
+  }
+
+  virtual const bn::HashNum &CalcHash() override {
+    auto txin_root = mt::MakeMerkleTree(vec_txin);    // TxIn
+    auto txout_root = mt::MakeMerkleTree(vec_txout);  // TxOut
+    Hash256Builder hash_builder;
+    if (txin_root) {
+      hash_builder << txin_root->get_hash();
+    }
+    if (txout_root) {
+      hash_builder << txout_root->get_hash();
+    }
+    data::Buffer hash_data = hash_builder.FinalValue();
+    get_hash().Assign(hash_data.value.data());
+    return get_hash();
   }
 
  private:
