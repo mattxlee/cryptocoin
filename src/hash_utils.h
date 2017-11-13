@@ -69,6 +69,19 @@ class HashBuilder {
     return buffer;
   }
 
+  static std::vector<uint8_t> CalculateHash(const std::vector<uint8_t> &data) {
+    return CalculateHash(data.data(), data.size());
+  }
+
+  static std::vector<uint8_t> CalculateHash(const uint8_t *data, size_t size) {
+    HashAlgo algo;
+    algo.Calculate(data, size);
+    algo.Final();
+    std::vector<uint8_t> result(algo.get_md_size());
+    memcpy(result.data(), algo.get_md(), algo.get_md_size());
+    return result;
+  }
+
  private:
   HashAlgo algo_;
 };
