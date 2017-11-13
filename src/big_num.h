@@ -12,6 +12,11 @@ template <int N>
 class BigNum {
  public:
   BigNum() {}
+  BigNum(const char *sz) {
+    BigNum<N> num = FromString(sz);
+    *this = num;
+  }
+
   explicit BigNum(const uint8_t *value) { memcpy(digits_, value, N); }
 
   static BigNum<N> FromString(const std::string &str) {
