@@ -65,6 +65,8 @@ class Block {
   std::vector<Transaction> &get_trans();
   const std::vector<Transaction> &get_trans() const;
 
+  void MakeHash();
+
  private:
   // Block base info.
   int version_ = 1;

@@ -41,6 +41,10 @@ std::vector<Transaction> &Block::get_trans() { return trans_; }
 
 const std::vector<Transaction> &Block::get_trans() const { return trans_; }
 
+void Block::MakeHash() {
+
+}
+
 }  // namespace blk
 
 }  // namespace coin
