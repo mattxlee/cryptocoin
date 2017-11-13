@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "big_num.h"
 #include "data_value.h"
 #include "hash_utils.h"
 #include "key.h"
@@ -35,7 +36,7 @@ class TransactionBase {
 
 /// Transaction incoming tx.
 struct TxIn {
-  data::Buffer tx_hash;    // From transaction hash value.
+  bn::HashNum tx_hash;    // From transaction hash value.
   int out_index;           // txout index.
   data::Buffer signature;  // Signature of hash(tx_hash + out_index).
 
@@ -47,14 +48,14 @@ struct TxIn {
 
   template <typename Stream>
   void Serialize(Stream &s) const {
-    tx_hash.WriteToStream(s);
+    data::MakeValue(tx_hash).WriteToStream(s);
     data::MakeValue(out_index).WriteToStream(s);
     signature.WriteToStream(s);
   }
 
   template <typename Stream>
   void Unserialize(Stream &s) {
-    tx_hash.ReadFromStream(s);
+    data::MakeValue(tx_hash).ReadFromStream(s);
     out_index = data::ReadValue<uint32_t>(s);
     signature.ReadFromStream(s);
   }
