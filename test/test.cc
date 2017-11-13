@@ -7,6 +7,8 @@
 #include "big_num.h"
 #include "data_value.h"
 #include "transaction.h"
+#include "block.h"
+#include "block_builder.h"
 
 template <typename T>
 std::tuple<T, bool> StreamReadWriteValCompare() {
@@ -211,4 +213,9 @@ TEST(BigNumber, CompareBiggerThan) {
   EXPECT_FALSE(bn1 == bn2);
   EXPECT_FALSE(bn1 < bn2);
   EXPECT_TRUE(bn1 != bn2);
+}
+
+TEST(Block, CreateGenesisBlock) {
+  auto block = coin::blk::BlockBuilder::BuildGenesisBlock();
+  EXPECT_EQ(block.get_height(), 0);
 }
