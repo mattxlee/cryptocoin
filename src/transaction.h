@@ -38,7 +38,7 @@ class TransactionBase {
   virtual int get_type() const = 0;
 
   /// Calculate hash value.
-  virtual const bn::HashNum &CalcHash() = 0;
+  virtual const data::Buffer CalcHash() const = 0;
 
  private:
   time_t time_ = 0;
@@ -196,7 +196,7 @@ class Transaction : public TransactionBase {
     }
   }
 
-  virtual const bn::HashNum &CalcHash() override {
+  virtual const data::Buffer CalcHash() const override {
     auto txin_root = mt::MakeMerkleTree(vec_txin);    // TxIn
     auto txout_root = mt::MakeMerkleTree(vec_txout);  // TxOut
     Hash256Builder hash_builder;
@@ -207,8 +207,7 @@ class Transaction : public TransactionBase {
       hash_builder << txout_root->get_hash();
     }
     data::Buffer hash_data = hash_builder.FinalValue();
-    get_hash().Assign(hash_data.value.data());
-    return get_hash();
+    return hash_data;
   }
 
  private:
