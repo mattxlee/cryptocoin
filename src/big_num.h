@@ -37,6 +37,10 @@ class BigNum {
     return num;
   }
 
+  void Assign(const uint8_t *value) {
+    memcpy(digits_, value, N * sizeof(uint8_t));
+  }
+
   BigNum<N> &operator=(const BigNum<N> &rhs) {
     if (this != &rhs) {
       memcpy(digits_, rhs.digits_, N * sizeof(uint8_t));
