@@ -105,7 +105,7 @@ class Value<bn::BigNum<N>> {
 
   std::vector<uint8_t> MakeStreamData() const {
     std::vector<uint8_t> data(N);
-    memcpy(data.data(), num_.digits_, N * sizeof(uint8_t));
+    memcpy(data.data(), num_.get_data(), N * sizeof(uint8_t));
     return data;
   }
 

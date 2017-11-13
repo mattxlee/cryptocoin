@@ -53,7 +53,7 @@ struct TxIn {
 
   data::Buffer CalcHash() const {
     Hash256Builder hash_builder;
-    hash_builder << tx_hash << data::MakeValue(out_index) << signature;
+    hash_builder << data::MakeValue(tx_hash) << data::MakeValue(out_index) << signature;
     return hash_builder.FinalValue();
   }
 
