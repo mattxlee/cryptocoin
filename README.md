@@ -1,4 +1,4 @@
-# cyptocoin
-![compile status](https://travis-ci.org/mattxlee/cyptocoin.svg?branch=master)
+# Crypto-Coin
+![compile status](https://travis-ci.org/mattxlee/cryptocoin.svg?branch=master)
 
-A cryptocoin without a name yet.
+A crypto-coin project without a name yet.
