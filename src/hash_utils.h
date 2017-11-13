@@ -3,11 +3,32 @@
 
 #include <vector>
 
+#include <openssl/ripemd.h>
 #include <openssl/sha.h>
 
 #include "data_value.h"
 
 namespace coin {
+
+/// RIPEMD160 (Hash) algorithm.
+class Hash160 {
+ public:
+  Hash160();
+  ~Hash160();
+
+  void Calculate(const uint8_t *p, size_t size);
+  void Final();
+
+  const uint8_t *get_md() const { return md_; }
+  size_t get_md_size() const { return RIPEMD160_DIGEST_LENGTH; }
+
+  bool is_finished() const { return finished_; }
+
+ private:
+  uint8_t md_[RIPEMD160_DIGEST_LENGTH];
+  RIPEMD160_CTX ctx_;
+  bool finished_ = false;
+};
 
 /// Hash 256 algorithm.
 class Hash256 {
@@ -52,6 +73,7 @@ class HashBuilder {
   HashAlgo algo_;
 };
 
+typedef HashBuilder<Hash160> Hash160Builder;
 typedef HashBuilder<Hash256> Hash256Builder;
 
 /// Convert DataValue to string.

@@ -8,6 +8,20 @@
 
 namespace coin {
 
+Hash160::Hash160() { assert(RIPEMD160_Init(&ctx_) == 1); }
+
+Hash160::~Hash160() {
+  if (!finished_) {
+    Final();
+  }
+}
+
+void Hash160::Calculate(const uint8_t *p, size_t size) {
+  assert(RIPEMD160_Update(&ctx_, p, size) == 1);
+}
+
+void Hash160::Final() { assert(RIPEMD160_Final(md_, &ctx_) == 1); }
+
 Hash256::Hash256() { SHA256_Init(&ctx_); }
 
 Hash256::~Hash256() {
